@@ -11,5 +11,7 @@ This has been on my mind for weeks. I wanted to gather resources, but I kept doi
 | Day | Topic Covered   |
 | --- | --------------- |
 | 1   | Vector Addition |
+| 2   | Matrix Addition |
+| 3   | Matrix Multiplication with cuBLAS |
 
 More to come... 🚀
