@@ -1,5 +1,4 @@
 #include <iostream>
-#include <cuda_runtime.h>
 
 __global__
 void addVectorsKernel(float* vec1, float* vec2, float* sum_vec, int n) {
@@ -22,17 +21,34 @@ void addVectors(float* vec1_h, float* vec2_h, float* sum_vec_h, int n) {
 
     int threadsPerBlock = 256;
     int numBlocks = (n + threadsPerBlock - 1) / threadsPerBlock;
+
+    // Start CUDA event timing
+    cudaEvent_t start, stop;
+    cudaEventCreate(&start);
+    cudaEventCreate(&stop);
+ 
+    cudaEventRecord(start);
+
     addVectorsKernel<<<numBlocks, threadsPerBlock>>>(vec1_d, vec2_d, sum_vec_d, n);
+
+    cudaEventRecord(stop);
+    cudaEventSynchronize(stop);
+
+    // Compute execution time
+    float milliseconds = 0;
+    cudaEventElapsedTime(&milliseconds, start, stop);
 
     cudaMemcpy(sum_vec_h, sum_vec_d, size, cudaMemcpyDeviceToHost);
 
     cudaFree(vec1_d);
     cudaFree(vec2_d);
     cudaFree(sum_vec_d);
+
+    std::cout << "Kernel Execution Time: " << milliseconds << " ms" << std::endl;
 }
 
 int main() {
-    const int vec_size = 100000;
+    const int vec_size = 10000000;
 
     float *vec1 = new float[vec_size];
     float *vec2 = new float[vec_size];
