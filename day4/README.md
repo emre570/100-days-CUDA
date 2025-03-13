@@ -47,7 +47,7 @@
   - **Best practice:** Threads should access **consecutive memory addresses**.
   - **Poor practice:** Strided access patterns cause inefficient memory transactions.
 
-![Memory Coalescing](Naive_kernel_improved_access.png)
+![Memory Coalescing](img/Naive_kernel_improved_access.png)
 
 - **Bank conflict in shared memory:**
   - **Shared memory is divided into memory banks. Each bank can only serve one access at a time.**
