@@ -1,0 +1,1 @@
+nvcc -I./include -o attention.exe attention.cu src/matmul.cu src/transpose.cu src/softmax.cu -lcurand && attention.exe
