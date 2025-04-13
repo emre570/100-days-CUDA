@@ -40,7 +40,7 @@ __global__ void softmaxKernel(float* input, float* output, int num_rows, int num
     for (int i = 0; i < ELEMENTS_PER_THREAD; i++) {
         float x = tile[i];
 
-        tile[i] = expf(x - local_max);
+        tile[i] = __expf(fminf(x - local_max, 80.0f));
         local_norm += tile[i];
     }
 
@@ -82,7 +82,14 @@ __global__ void softmaxKernel(float* input, float* output, int num_rows, int num
     //Final Softmax calculation
     //float row_max = smem_max[0];
     float row_norm = smem_norm[0];
+    if (row_norm < 1e-6f) row_norm = 1e-6f;
     __syncthreads();
+
+    if (threadIdx.x == 0 && row == 0) {
+        printf("row_norm = %f\n", row_norm);
+        for (int i = 0; i < ELEMENTS_PER_THREAD; ++i)
+            printf("tile[%d] = %f\n", i, tile[i]);
+    }    
 
     #pragma unroll
     for (int i = 0; i < ELEMENTS_PER_THREAD; ++i) {
@@ -95,7 +102,10 @@ __global__ void softmaxKernel(float* input, float* output, int num_rows, int num
 
 void launch_softmax(float* input, float* output, int num_rows, int num_cols) {
     dim3 grid_dim(num_rows); // her row için 1 block
-    dim3 block_dim(BLOCK_SIZE);
+
+    int threads_per_row = (num_cols + ELEMENTS_PER_THREAD - 1) / ELEMENTS_PER_THREAD;
+    threads_per_row = std::min(threads_per_row, BLOCK_SIZE);  // safety cap
+    dim3 block_dim(threads_per_row);
 
     softmaxKernel<<<grid_dim, block_dim>>>(input, output, num_rows, num_cols);
 

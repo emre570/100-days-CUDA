@@ -22,4 +22,10 @@ mkdir build then open
 
 cd build && cmake .. && make -j && ./main
 
-you have to execute this every time you want to run
+you have to execute this every time you want to 
+
+execute vscode server:
+code-server --bind-addr 0.0.0.0:8080 --auth password
+
+go in working container:
+docker exec -it my-cuda-container bash
