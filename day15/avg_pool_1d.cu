@@ -5,7 +5,6 @@
 #include <cuda_runtime.h>
 
 std::vector<float> randomFill(std::vector<float> v) {
-    // İstersen seed’i sabit tutarak reproducible yapabilirsin:
     static std::mt19937 gen(1234);
     std::uniform_real_distribution<float> dist(-1.0f, 1.0f);
 
@@ -32,13 +31,10 @@ std::vector<float> applyPadding(
     std::vector<float> padded;
     padded.reserve(v.size() + 2 * pad_size);
 
-    // 1) Başa pad_size kadar 0 ekle
     padded.insert(padded.end(), pad_size, 0.0f);
 
-    // 2) Orijinal veriyi kopyala
     padded.insert(padded.end(), v.begin(), v.end());
 
-    // 3) Sona pad_size kadar 0 ekle
     padded.insert(padded.end(), pad_size, 0.0f);
 
     return padded;
@@ -61,12 +57,11 @@ __global__ void avg_pool_1d_kernel(
     }
     __syncthreads();
 
-    // 2. Her thread kendi pencere toplamını SMEM üzerinden alır
     if (global_i + kernel_size <= input_len){
         float sum = 0.0f;
         int local_start = tid * stride;
 
-        for (int k = 0; k < kernel_size; ++k){  // sabit kernel_size için optimize edebilirsin      // dynamic kernel_size için if guard şart
+        for (int k = 0; k < kernel_size; ++k){
             sum += smem[local_start + k];
         }
 
