@@ -76,7 +76,6 @@ void callKernel(int blockSize, int Lsize, int Psize, int kSize, int sSize){
     int L_pad = L + 2 * P;
     // Output size
     int N_out = ceil(((L_pad - k) / S)) + 1;
-
     
     std::vector<float> input(L), output(N_out);
     input = randomFill(input);
@@ -84,10 +83,10 @@ void callKernel(int blockSize, int Lsize, int Psize, int kSize, int sSize){
     auto input_padded = applyPadding(input, P);
     
     float *d_input, *d_output;
-    cudaMalloc(&d_input, L * sizeof(float));
+    cudaMalloc(&d_input, L_pad * sizeof(float));
     cudaMalloc(&d_output, N_out * sizeof(float));
     
-    cudaMemcpy(d_input, input_padded.data(), L * sizeof(float), cudaMemcpyHostToDevice);
+    cudaMemcpy(d_input, input_padded.data(), L_pad * sizeof(float), cudaMemcpyHostToDevice);
     
     const int block_size = blockSize;
     int grid_size = ceil(N_out + block_size - 1) / block_size;
